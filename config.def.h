@@ -94,6 +94,11 @@ static Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+
+  // audio controls
+  { 0, XF86XK_AudioMute,        spawn, SHCMD("pamixer -t && pkill -RTMIN+10 dwmblocks)") },
+  { 0, XF86XK_AudioRaiseVolume, spawn, SHCMD("pamixer -i 5 && pkill -RTMIN+10 dwmblocks)") },
+  { 0, XF86XK_AudioLowerVolume, spawn, SHCMD("pamixer -d 5 && pkill -RTMIN+10 dwmblocks)") },
 };
 
 /* button definitions */
