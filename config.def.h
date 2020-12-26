@@ -7,8 +7,8 @@ static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const char *fonts[]          = {
   "FiraMono Nerd Font Mono:size=12:antialias=true:autohint=true",
+  "Font Awesome 5 Free Solid:size=12:antialias=true",
   "Font Awesome 5 Brands Regular:size=12:antialias=true",
-  "Font Awesome 5 Free Regular:size=12:antialias=true",
 };
 static const char dmenufont[]       = "FiraMono Nerd Font Mono:size=12:antialias=true:autohint=true";
 static const char col_gray1[]       = "#222222";
