@@ -6,8 +6,9 @@ static const unsigned int snap      = 32;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const char *fonts[]          = {
+  "Font Awesome 5 Brands Regular:size=12:antialias=true",
+  "Font Awesome 5 Free Regular:size=12:antialias=true",
   "FiraMono Nerd Font Mono:size=12:antialias=true:autohint=true",
-  "FontAwesome:size=12:antialias=true:autohint=true"
 };
 static const char dmenufont[]       = "FiraMono Nerd Font Mono:size=12:antialias=true:autohint=true";
 static const char col_gray1[]       = "#222222";
@@ -22,7 +23,7 @@ static const char *colors[][3]      = {
 };
 
 /* tagging */
-static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+static const char *tags[] = { "", "", "", "", "5", "6", "7", "8", "" };
 
 static const Rule rules[] = {
   /* xprop(1):
@@ -31,11 +32,11 @@ static const Rule rules[] = {
    */
   /* class      instance    title       tags mask     isfloating   monitor */
   { "Gimp",     NULL,       NULL,       0,            1,           -1 },
-  { "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
+  { "Firefox",  NULL,       NULL,       1 << 1,       0,           -1 },
 };
 
 /* layout(s) */
-static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
+static const float mfact     = 0.5;  /* fa1tor of master area size [0.05..0.95] */
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 
