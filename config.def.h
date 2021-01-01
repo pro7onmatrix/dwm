@@ -43,6 +43,9 @@ static const Layout layouts[] = {
 	{ "[M]",      monocle },
 };
 
+/* corner radius */
+static const unsigned int cornerradius = 10;
+
 /* key definitions */
 #define MODKEY Mod1Mask
 #define TAGKEYS(KEY,TAG) \

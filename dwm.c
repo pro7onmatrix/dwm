@@ -39,6 +39,7 @@
 #ifdef XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif /* XINERAMA */
+#include <X11/extensions/shape.h>
 #include <X11/Xft/Xft.h>
 
 #include "drw.h"
@@ -234,6 +235,7 @@ static int xerror(Display *dpy, XErrorEvent *ee);
 static int xerrordummy(Display *dpy, XErrorEvent *ee);
 static int xerrorstart(Display *dpy, XErrorEvent *ee);
 static void zoom(const Arg *arg);
+static void drawroundedcorners(Client *c);
 
 /* variables */
 static const char broken[] = "broken";
@@ -1073,6 +1075,7 @@ manage(Window w, XWindowAttributes *wa)
 		unfocus(selmon->sel, 0);
 	c->mon->sel = c;
 	arrange(c->mon);
+  drawroundedcorners(c);
 	XMapWindow(dpy, c->win);
 	focus(NULL);
 }
@@ -1289,6 +1292,114 @@ resizeclient(Client *c, int x, int y, int w, int h)
 }
 
 void
+drawroundedcorners(Client *c)
+{
+  if (cornerradius <= 0 || !c || c->isfullscreen)
+    return;
+
+  Window win = c->win;
+  if (!win)
+    return;
+
+#ifdef DEBUG
+  fprintf(stderr, "Get window attributes... ");
+#endif
+  XWindowAttributes win_attr;
+  if (!XGetWindowAttributes(dpy, win, &win_attr))
+    return;
+#ifdef DEBUG
+  fprintf(stderr, "done!\n");
+#endif
+
+  unsigned int diameter = 2 * cornerradius;
+  if (c->w < diameter || c->h < diameter)
+    return;
+
+#ifdef DEBUG
+  fprintf(stderr, "Create shape mask... ");
+#endif
+  Pixmap shape_mask = XCreatePixmap(dpy, win, c->w, c->h, 1);
+  if (!shape_mask)
+    return;
+#ifdef DEBUG
+  fprintf(stderr, "done!\n");
+#endif
+
+#ifdef DEBUG
+  fprintf(stderr, "Create graphics context... ");
+#endif
+  XGCValues xgcv;
+  GC shape_gc = XCreateGC(dpy, win, 0, &xgcv);
+  if (!shape_gc) {
+    XFreePixmap(dpy, shape_mask);
+    return;
+  }
+#ifdef DEBUG
+  fprintf(stderr, "done!\n");
+#endif
+
+  // clear rectangle
+#ifdef DEBUG
+  fprintf(stderr, "Clear rectangle... ");
+#endif
+  XSetForeground(dpy, shape_gc, 0);
+  XFillRectangle(dpy, shape_mask, shape_gc, 0, 0, c->w, c->h);
+#ifdef DEBUG
+  fprintf(stderr, "done!\n");
+#endif
+
+  XSetForeground(dpy, shape_gc, 1);
+
+  // draw rounded corners
+  int top    = 0,
+      left   = 0,
+      bottom = c->h - 1 - diameter,
+      right  = c->w - 1 - diameter;
+
+#ifdef DEBUG
+  fprintf(stderr, "Draw arcs... ");
+#endif
+  // top left -> 180-270 degrees
+  XFillArc(dpy, shape_mask, shape_gc, left,  top,    diameter, diameter, 11520, 17280);
+  // top right -> 270-360 degrees
+  XFillArc(dpy, shape_mask, shape_gc, right, top,    diameter, diameter, 17280, 23040);
+  // bottom left -> 90-180 degrees
+  XFillArc(dpy, shape_mask, shape_gc, left,  bottom, diameter, diameter, 5760,  11520);
+  // bottom right -> 0-90 degrees
+  XFillArc(dpy, shape_mask, shape_gc, right, bottom, diameter, diameter, 0,     5760);
+#ifdef DEBUG
+  fprintf(stderr, "done!\n");
+#endif
+
+#ifdef DEBUG
+  fprintf(stderr, "Draw inner rectangles... ");
+#endif
+  XFillRectangle(dpy, shape_mask, shape_gc, cornerradius, 0, c->w - diameter, c->h);
+  XFillRectangle(dpy, shape_mask, shape_gc, 0, cornerradius, c->w, c->h - diameter);
+#ifdef DEBUG
+  fprintf(stderr, "done!\n");
+#endif
+
+#ifdef DEBUG
+  fprintf(stderr, "Combine shapes... ");
+#endif
+  // FIXME: Getting BadMatch error
+  XShapeCombineMask(dpy, win, ShapeClip, 0, 0, shape_mask, ShapeSet);
+#ifdef DEBUG
+  fprintf(stderr, "done!\n");
+#endif
+
+#ifdef DEBUG
+  fprintf(stderr, "Free memory... ");
+#endif
+  XFreePixmap(dpy, shape_mask);
+  XFreeGC(dpy, shape_gc);
+#ifdef DEBUG
+  fprintf(stderr, "done!\n");
+#endif
+}
+
+void
 resizemouse(const Arg *arg)
 {
 	int ocx, ocy, nw, nh;
@@ -1332,6 +1443,9 @@ resizemouse(const Arg *arg)
 			}
 			if (!selmon->lt[selmon->sellt]->arrange || c->isfloating)
 				resize(c, c->x, c->y, nw, nh, 1);
+
+      drawroundedcorners(c);
+
 			break;
 		}
 	} while (ev.type != ButtonRelease);
@@ -1343,6 +1457,8 @@ resizemouse(const Arg *arg)
 		selmon = m;
 		focus(NULL);
 	}
+
+  drawroundedcorners(c);
 }
 
 void
