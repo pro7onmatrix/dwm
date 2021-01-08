@@ -3,15 +3,15 @@
 #include <X11/XF86keysym.h>
 
 /* appearance */
-static const unsigned int borderpx  = 2;        /* border pixel of windows */
-static const unsigned int gappx     = 5;        /* gaps between windows */
+static const unsigned int borderpx  = 3;        /* border pixel of windows */
+static const unsigned int gappx     = 8;        /* gaps between windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const char *fonts[]          = {
-  "FiraMono Nerd Font:size=12:antialias=true:autohint=true",
+  "FiraCode Nerd Font:size=12:style=Regular:antialias=true:autohint=true",
 };
-static const char dmenufont[]       = "FiraMono Nerd Font Mono:size=12:antialias=true:autohint=true";
+static const char dmenufont[]       = "FiraCode Nerd Font:size=12:style=Regular:antialias=true:autohint=true";
 static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
@@ -32,7 +32,7 @@ static const char *colors[][3]      = {
 };
 
 /* tagging */
-static const char *tags[] = { "", "", "", "", "", "", "" };
+static const char *tags[] = { "", "", "", "", "", "", "", "", "" };
 
 static const Rule rules[] = {
   /* xprop(1):
@@ -41,10 +41,14 @@ static const Rule rules[] = {
    */
   /* class      instance    title       tags mask     isfloating   monitor */
   { "Gimp",     NULL,       NULL,       0,            1,           -1 },
-  { "Firefox",  NULL,       NULL,       1 << 2,       0,           -1 },
-  { "Thunderbird", NULL,    NULL,       1 << 3,       0,           -1 },
-  { "Slack",    NULL,       NULL,       1 << 4,       0,           -1 },
   { "Avogadro", NULL,       NULL,       0,            1,           -1 },
+  { "firefox",  NULL,       NULL,       1 << 2,       0,           -1 },
+  { "Thunderbird", NULL,    NULL,       1 << 3,       1,           -1 },
+  { "Slack",    NULL,       NULL,       1 << 6,       0,           -1 },
+  { "Signal",   NULL,       NULL,       1 << 6,       0,           -1 },
+  { "Deadbeef", NULL,       NULL,       1 << 7,       0,           -1 },
+  { "Spotify",  NULL,       NULL,       1 << 7,       0,           -1 },
+  { "Steam",    NULL,       NULL,       1 << 8,       1,           -1 },
 };
 
 /* layout(s) */
@@ -81,6 +85,10 @@ static const char *lockcmd[]    = { "slock", NULL };
 static const char *togglemute[] = { "pamixer", "-t", NULL };
 static const char *upvol[]      = { "pamixer", "-i", "5", NULL };
 static const char *downvol[]    = { "pamixer", "-d", "5", NULL };
+static const char *prevtrack[]  = { "playerctl", "previous", NULL };
+static const char *nexttrack[]  = { "playerctl", "next", NULL };
+static const char *toggleplayback[] = { "playerctl", "play-pause", NULL };
+static const char *stopplayback[] = { "playerctl", "stop", NULL };
 
 static Key keys[] = {
   /* modifier                     key         function        argument */
@@ -118,8 +126,8 @@ static Key keys[] = {
   TAGKEYS(                        XK_5,                       4)
   TAGKEYS(                        XK_6,                       5)
   TAGKEYS(                        XK_7,                       6)
-  /* TAGKEYS(                        XK_8,                       7) */
-  /* TAGKEYS(                        XK_9,                       8) */
+  TAGKEYS(                        XK_8,                       7)
+  TAGKEYS(                        XK_9,                       8)
   { MODKEY|ShiftMask,             XK_q,       quit,           {0} },
   { MODKEY|ShiftMask,             XK_s,       spawn,          {.v = logoutcmd } },
   { MODKEY|ShiftMask,             XK_l,       spawn,          {.v = lockcmd } },
@@ -128,6 +136,10 @@ static Key keys[] = {
   { 0, XF86XK_AudioMute,                      spawn,          {.v = togglemute} },
   { 0, XF86XK_AudioRaiseVolume,               spawn,          {.v = upvol} },
   { 0, XF86XK_AudioLowerVolume,               spawn,          {.v = downvol} },
+  { 0, XF86XK_AudioPrev,                      spawn,          {.v = prevtrack} },
+  { 0, XF86XK_AudioNext,                      spawn,          {.v = nexttrack} },
+  { 0, XF86XK_AudioPlay,                      spawn,          {.v = toggleplayback} },
+  { 0, XF86XK_AudioStop,                      spawn,          {.v = stopplayback} },
 };
 
 /* button definitions */
