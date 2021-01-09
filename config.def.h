@@ -12,20 +12,21 @@ static const char *fonts[]          = {
   "FiraCode Nerd Font:size=12:style=Regular:antialias=true:autohint=true",
 };
 static const char dmenufont[]       = "FiraCode Nerd Font:size=12:style=Regular:antialias=true:autohint=true";
-static const char col_gray1[]       = "#222222";
-static const char col_gray2[]       = "#444444";
-static const char col_gray3[]       = "#bbbbbb";
-static const char col_gray4[]       = "#eeeeee";
-static const char col_cyan[]        = "#005577";
+static const char col_gray1[]       = "#2e3440";
+static const char col_gray2[]       = "#3b4252";
+static const char col_gray3[]       = "#d8dee9";
+static const char col_gray4[]       = "#e5e9f0";
+static const char col_cyan[]        = "#5e81ac";
+static const char col_orange[]      = "#d08770";
 static const char col_black[]       = "#000000";
-static const char col_red[]         = "#ff0000";
-static const char col_yellow[]      = "#ffff00";
-static const char col_white[]       = "#ffffff";
+static const char col_red[]         = "#bf616a";
+static const char col_yellow[]      = "#ebcb8b";
+static const char col_white[]       = "#eceff4";
 
 static const char *colors[][3]      = {
 /*                   fg         bg          border   */
   [SchemeNorm]  =  { col_gray3, col_gray1,  col_gray2 },
-  [SchemeSel]   =  { col_gray4, col_cyan,   col_cyan },
+  [SchemeSel]   =  { col_gray4, col_orange, col_orange },
   [SchemeOcc]   =  { col_gray3, col_gray2,  col_gray2 },
   [SchemeUrgent]=  { col_white, col_red,    col_red },
   [SchemeWarn]  =  { col_black, col_yellow, col_red },
