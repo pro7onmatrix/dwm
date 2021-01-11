@@ -16,7 +16,7 @@ static const char col_gray1[]       = "#2e3440";
 static const char col_gray2[]       = "#434c5e";
 static const char col_gray3[]       = "#d8dee9";
 static const char col_gray4[]       = "#e5e9f0";
-static const char col_cyan[]        = "#5e81ac";
+static const char col_cyan[]        = "#8fbcbb";
 static const char col_orange[]      = "#d08770";
 static const char col_black[]       = "#000000";
 static const char col_red[]         = "#bf616a";
@@ -26,7 +26,7 @@ static const char col_white[]       = "#eceff4";
 static const char *colors[][3]      = {
 /*                   fg         bg          border   */
   [SchemeNorm]  =  { col_gray3, col_gray1,  col_gray2 },
-  [SchemeSel]   =  { col_gray4, col_orange, col_orange },
+  [SchemeSel]   =  { col_gray1, col_cyan,   col_cyan },
   [SchemeOcc]   =  { col_gray3, col_gray2,  col_gray2 },
   [SchemeUrgent]=  { col_white, col_red,    col_red },
   [SchemeWarn]  =  { col_black, col_yellow, col_red },
@@ -145,6 +145,9 @@ static Key keys[] = {
   { 0, XF86XK_AudioNext,                      spawn,          {.v = nexttrack} },
   { 0, XF86XK_AudioPlay,                      spawn,          {.v = toggleplayback} },
   { 0, XF86XK_AudioStop,                      spawn,          {.v = stopplayback} },
+
+  // screenshots
+  { 0,                            XK_Print,   spawn,          SHCMD("fname=$(date '+%Y%m%d-%H%M%S').png; import -window root ~/Bilder/Screenshots/$fname && notify-send \"Screenshot\" \"Saved screenshot as $fname\"") },
 };
 
 /* button definitions */
