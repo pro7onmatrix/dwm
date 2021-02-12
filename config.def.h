@@ -25,9 +25,9 @@ static const char col_white[]       = "#eceff4";
 
 static const char *colors[][3]      = {
 /*                   fg         bg          border   */
-  [SchemeNorm]  =  { col_gray3, col_gray1,  col_gray2 },
+  [SchemeNorm]  =  { col_gray3, col_gray1,  col_gray1 },
   [SchemeSel]   =  { col_gray1, col_cyan,   col_cyan },
-  [SchemeOcc]   =  { col_gray3, col_gray2,  col_gray2 },
+  [SchemeOcc]   =  { col_gray3, col_gray2,  col_gray1 },
   [SchemeUrgent]=  { col_white, col_red,    col_red },
   [SchemeWarn]  =  { col_black, col_yellow, col_red },
 };
@@ -40,16 +40,19 @@ static const Rule rules[] = {
    *  WM_CLASS(STRING) = instance, class
    *  WM_NAME(STRING) = title
    */
-  /* class      instance    title       tags mask     isfloating   monitor */
-  { "Gimp",     NULL,       NULL,       0,            1,           -1 },
-  { "Avogadro", NULL,       NULL,       0,            1,           -1 },
-  { "firefox",  NULL,       NULL,       1 << 2,       0,           -1 },
-  { "Thunderbird", NULL,    NULL,       1 << 3,       1,           -1 },
-  { "Slack",    NULL,       NULL,       1 << 6,       0,           -1 },
-  { "Signal",   NULL,       NULL,       1 << 6,       0,           -1 },
-  { "Deadbeef", NULL,       NULL,       1 << 7,       0,           -1 },
-  { "Spotify",  NULL,       NULL,       1 << 7,       0,           -1 },
-  { "Steam",    NULL,       NULL,       1 << 8,       1,           -1 },
+  /* class      instance    title       tags mask     isfloating   monitor      scratch key */
+  { "Gimp",     NULL,       NULL,       0,            1,           -1,          0 },
+  { "Avogadro", NULL,       NULL,       0,            1,           -1,          0 },
+  { "firefox",  NULL,       NULL,       1 << 2,       0,           -1,          0 },
+  { "Thunderbird", NULL,    NULL,       1 << 3,       1,           -1,          0 },
+  { "Slack",    NULL,       NULL,       1 << 6,       0,           -1,          0 },
+  { "Signal",   NULL,       NULL,       1 << 6,       0,           -1,          0 },
+  { "discord",  NULL,       NULL,       1 << 6,       0,           -1,          0 },
+  { "Deadbeef", NULL,       NULL,       1 << 7,       0,           -1,          0 },
+  { "Spotify",  NULL,       NULL,       1 << 7,       0,           -1,          0 },
+  { "Steam",    NULL,       NULL,       1 << 8,       1,           -1,          0 },
+  { "Lutris",   NULL,       NULL,       1 << 8,       1,           -1,          0 },
+  { NULL,       NULL,       "scratchpad", 0,          1,           -1,          's' },
 };
 
 /* layout(s) */
@@ -85,6 +88,10 @@ static const char *dmenucmd[]   = { "dmenu_run", "-m", dmenumon, "-fn", dmenufon
 static const char *termcmd[]    = { "st", NULL };
 static const char *logoutcmd[]  = { "dmenu-poweroff", NULL };
 static const char *lockcmd[]    = { "slock", NULL };
+
+static const char *screenshotcmd[] = { "screenshot", NULL };
+
+/* Some playback options */
 static const char *togglemute[] = { "pamixer", "-t", NULL };
 static const char *upvol[]      = { "pamixer", "-i", "5", NULL };
 static const char *downvol[]    = { "pamixer", "-d", "5", NULL };
@@ -93,17 +100,27 @@ static const char *nexttrack[]  = { "playerctl", "next", NULL };
 static const char *toggleplayback[] = { "playerctl", "play-pause", NULL };
 static const char *stopplayback[] = { "playerctl", "stop", NULL };
 
+static const char *bitwarden[] = { "bitwarden-dmenu", NULL };
+
+/* First arg only serves to match against key in rules */
+static const char *scratchpadcmd[] = { "s", "st", "-t", "scratchpad", NULL };
+
+#include "movestack.c"
 static Key keys[] = {
   /* modifier                     key         function        argument */
-  { MODKEY,                       XK_p,       spawn,          {.v = dmenucmd } },
-  { MODKEY,                       XK_Return,  spawn,          {.v = termcmd } },
+  { MODKEY,                       XK_p,       spawn,          {.v = dmenucmd} },
+  { MODKEY,                       XK_Return,  spawn,          {.v = termcmd} },
+  { MODKEY,               XK_dead_circumflex, togglescratch,  {.v = scratchpadcmd} },
   { MODKEY,                       XK_b,       togglebar,      {0} },
-  { MODKEY,                       XK_j,       focusstack,     {.i = +1 } },
-  { MODKEY,                       XK_k,       focusstack,     {.i = -1 } },
-  { MODKEY,                       XK_i,       incnmaster,     {.i = +1 } },
-  { MODKEY,                       XK_d,       incnmaster,     {.i = -1 } },
+  { MODKEY,                       XK_j,       focusstack,     {.i = +1} },
+  { MODKEY,                       XK_k,       focusstack,     {.i = -1} },
+  { MODKEY|ControlMask,           XK_space,   focusmaster,    {0} },
+  { MODKEY,                       XK_i,       incnmaster,     {.i = +1} },
+  { MODKEY,                       XK_d,       incnmaster,     {.i = -1} },
   { MODKEY,                       XK_h,       setmfact,       {.f = -0.05} },
   { MODKEY,                       XK_l,       setmfact,       {.f = +0.05} },
+  { MODKEY|ShiftMask,             XK_j,       movestack,      {.i = +1} },
+  { MODKEY|ShiftMask,             XK_k,       movestack,      {.i = -1} },
   { MODKEY|ShiftMask,             XK_Return,  zoom,           {0} },
   { MODKEY,                       XK_Tab,     view,           {0} },
   { MODKEY|ShiftMask,             XK_c,       killclient,     {0} },
@@ -112,18 +129,17 @@ static Key keys[] = {
   { MODKEY,                       XK_m,       setlayout,      {.v = &layouts[2]} },
   { MODKEY,                       XK_u,       setlayout,      {.v = &layouts[3]} },
   { MODKEY,                       XK_o,       setlayout,      {.v = &layouts[4]} },
-  { MODKEY|ShiftMask,             XK_f,       fullscreen,     {0} },
+  { MODKEY,                       XK_F11,     fullscreen,     {0} },
   { MODKEY,                       XK_space,   setlayout,      {0} },
   { MODKEY|ShiftMask,             XK_space,   togglefloating, {0} },
-  { MODKEY,                       XK_0,       view,           {.ui = ~0 } },
-  { MODKEY|ShiftMask,             XK_0,       tag,            {.ui = ~0 } },
-  { MODKEY,                       XK_comma,   focusmon,       {.i = -1 } },
-  { MODKEY,                       XK_period,  focusmon,       {.i = +1 } },
-  { MODKEY|ShiftMask,             XK_comma,   tagmon,         {.i = -1 } },
-  { MODKEY|ShiftMask,             XK_period,  tagmon,         {.i = +1 } },
-  { MODKEY,                       XK_minus,   setgaps,        {.i = -1 } },
-  { MODKEY,                       XK_equal,   setgaps,        {.i = +1 } },
-  { MODKEY|ShiftMask,             XK_equal,   setgaps,        {.i = 0  } },
+  { MODKEY,                       XK_0,       view,           {.ui = ~0} },
+  { MODKEY|ShiftMask,             XK_0,       tag,            {.ui = ~0} },
+  { MODKEY,                       XK_comma,   focusmon,       {.i = -1} },
+  { MODKEY,                       XK_period,  focusmon,       {.i = +1} },
+  { MODKEY|ShiftMask,             XK_comma,   tagmon,         {.i = -1} },
+  { MODKEY|ShiftMask,             XK_period,  tagmon,         {.i = +1} },
+  { MODKEY,                       XK_minus,   setgaps,        {.i = -1} },
+  { MODKEY,                       XK_plus,    setgaps,        {.i = +1} },
   TAGKEYS(                        XK_1,                       0)
   TAGKEYS(                        XK_2,                       1)
   TAGKEYS(                        XK_3,                       2)
@@ -134,8 +150,11 @@ static Key keys[] = {
   TAGKEYS(                        XK_8,                       7)
   TAGKEYS(                        XK_9,                       8)
   { MODKEY|ShiftMask,             XK_q,       quit,           {0} },
-  { MODKEY|ShiftMask,             XK_s,       spawn,          {.v = logoutcmd } },
-  { MODKEY|ShiftMask,             XK_l,       spawn,          {.v = lockcmd } },
+  { MODKEY|ShiftMask,             XK_s,       spawn,          {.v = logoutcmd} },
+  { MODKEY|ShiftMask,             XK_l,       spawn,          {.v = lockcmd} },
+
+  { MODKEY|ShiftMask,             XK_f,       spawn,          SHCMD("$BROWSER") },
+  { MODKEY|ShiftMask,             XK_p,       spawn,          {.v = bitwarden} },
 
   // audio controls
   { 0, XF86XK_AudioMute,                      spawn,          {.v = togglemute} },
@@ -147,7 +166,7 @@ static Key keys[] = {
   { 0, XF86XK_AudioStop,                      spawn,          {.v = stopplayback} },
 
   // screenshots
-  { 0,                            XK_Print,   spawn,          SHCMD("fname=$(date '+%Y%m%d-%H%M%S').png; import -window root ~/Bilder/Screenshots/$fname && notify-send \"Screenshot\" \"Saved screenshot as $fname\"") },
+  { 0,                            XK_Print,   spawn,          {.v = screenshotcmd} },
 };
 
 /* button definitions */
