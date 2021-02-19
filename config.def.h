@@ -9,9 +9,9 @@ static const unsigned int snap      = 32;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const char *fonts[]          = {
-  "FiraCode Nerd Font:size=12:style=Regular:antialias=true:autohint=true",
+  "FiraCode Nerd Font:size=12:antialias=true:autohint=true",
 };
-static const char dmenufont[]       = "FiraCode Nerd Font:size=12:style=Regular:antialias=true:autohint=true";
+static const char dmenufont[]       = "FiraCode Nerd Font:size=12:antialias=true:autohint=true";
 static const char col_gray1[]       = "#2e3440";
 static const char col_gray2[]       = "#434c5e";
 static const char col_gray3[]       = "#d8dee9";
@@ -26,14 +26,15 @@ static const char col_white[]       = "#eceff4";
 static const char *colors[][3]      = {
 /*                   fg         bg          border   */
   [SchemeNorm]  =  { col_gray3, col_gray1,  col_gray1 },
-  [SchemeSel]   =  { col_gray1, col_cyan,   col_cyan },
+  [SchemeInv]   =  { col_gray1, col_gray3,  col_gray1 },
+  [SchemeSel]   =  { col_gray1, col_cyan,   col_cyan  },
   [SchemeOcc]   =  { col_gray3, col_gray2,  col_gray1 },
-  [SchemeUrgent]=  { col_white, col_red,    col_red },
-  [SchemeWarn]  =  { col_black, col_yellow, col_red },
+  [SchemeUrgent]=  { col_white, col_red,    col_red   },
+  [SchemeWarn]  =  { col_black, col_yellow, col_red   },
 };
 
 /* tagging */
-static const char *tags[] = { " ₁", " ₂", " ₃", " ₄", " ₅", " ₆", " ₇", " ₈", " ₉" };
+static const char *tags[] = { " ₁", " ₂", " ₃", " ₄", " ₅", " ₆", " ₇", " ₈", " ₉" };
 
 static const Rule rules[] = {
   /* xprop(1):
@@ -43,15 +44,11 @@ static const Rule rules[] = {
   /* class      instance    title       tags mask     isfloating   monitor      scratch key */
   { "Gimp",     NULL,       NULL,       0,            1,           -1,          0 },
   { "Avogadro", NULL,       NULL,       0,            1,           -1,          0 },
-  { "firefox",  NULL,       NULL,       1 << 2,       0,           -1,          0 },
-  { "Thunderbird", NULL,    NULL,       1 << 3,       1,           -1,          0 },
+  { "Firefox",  NULL,       NULL,       1 << 2,       0,           -1,          0 },
+  { "Thunderbird", NULL,    NULL,       1 << 3,       0,           -1,          0 },
   { "Slack",    NULL,       NULL,       1 << 6,       0,           -1,          0 },
-  { "Signal",   NULL,       NULL,       1 << 6,       0,           -1,          0 },
   { "discord",  NULL,       NULL,       1 << 6,       0,           -1,          0 },
-  { "Deadbeef", NULL,       NULL,       1 << 7,       0,           -1,          0 },
-  { "Spotify",  NULL,       NULL,       1 << 7,       0,           -1,          0 },
-  { "Steam",    NULL,       NULL,       1 << 8,       1,           -1,          0 },
-  { "Lutris",   NULL,       NULL,       1 << 8,       1,           -1,          0 },
+  { "zoom",     NULL,       NULL,       1 << 7,       1,           -1,          0 },
   { NULL,       NULL,       "scratchpad", 0,          1,           -1,          's' },
 };
 
@@ -92,15 +89,15 @@ static const char *lockcmd[]    = { "slock", NULL };
 static const char *screenshotcmd[] = { "screenshot", NULL };
 
 /* Some playback options */
-static const char *togglemute[] = { "pamixer", "-t", NULL };
-static const char *upvol[]      = { "pamixer", "-i", "5", NULL };
-static const char *downvol[]    = { "pamixer", "-d", "5", NULL };
 static const char *prevtrack[]  = { "playerctl", "previous", NULL };
 static const char *nexttrack[]  = { "playerctl", "next", NULL };
 static const char *toggleplayback[] = { "playerctl", "play-pause", NULL };
 static const char *stopplayback[] = { "playerctl", "stop", NULL };
 
 static const char *bitwarden[] = { "bitwarden-dmenu", NULL };
+
+static const char *brightnessup[]   = { "xbacklight", "-inc", "5", NULL };
+static const char *brightnessdown[] = { "xbacklight", "-dec", "5", NULL };
 
 /* First arg only serves to match against key in rules */
 static const char *scratchpadcmd[] = { "s", "st", "-t", "scratchpad", NULL };
@@ -110,7 +107,7 @@ static Key keys[] = {
   /* modifier                     key         function        argument */
   { MODKEY,                       XK_p,       spawn,          {.v = dmenucmd} },
   { MODKEY,                       XK_Return,  spawn,          {.v = termcmd} },
-  { MODKEY,               XK_dead_circumflex, togglescratch,  {.v = scratchpadcmd} },
+  { MODKEY,                       XK_grave,   togglescratch,  {.v = scratchpadcmd} },
   { MODKEY,                       XK_b,       togglebar,      {0} },
   { MODKEY,                       XK_j,       focusstack,     {.i = +1} },
   { MODKEY,                       XK_k,       focusstack,     {.i = -1} },
@@ -157,13 +154,17 @@ static Key keys[] = {
   { MODKEY|ShiftMask,             XK_p,       spawn,          {.v = bitwarden} },
 
   // audio controls
-  { 0, XF86XK_AudioMute,                      spawn,          {.v = togglemute} },
-  { 0, XF86XK_AudioRaiseVolume,               spawn,          {.v = upvol} },
-  { 0, XF86XK_AudioLowerVolume,               spawn,          {.v = downvol} },
+  { 0, XF86XK_AudioMute,                      spawn,          SHCMD("pamixer -t && pkill -RTMIN+12 dwmblocks") },
+  { 0, XF86XK_AudioRaiseVolume,               spawn,          SHCMD("pamixer -i 5 && pkill -RTMIN+12 dwmblocks") },
+  { 0, XF86XK_AudioLowerVolume,               spawn,          SHCMD("pamixer -d 5 && pkill -RTMIN+12 dwmblocks") },
   { 0, XF86XK_AudioPrev,                      spawn,          {.v = prevtrack} },
   { 0, XF86XK_AudioNext,                      spawn,          {.v = nexttrack} },
   { 0, XF86XK_AudioPlay,                      spawn,          {.v = toggleplayback} },
   { 0, XF86XK_AudioStop,                      spawn,          {.v = stopplayback} },
+
+  // brightness controls
+  { 0, XF86XK_MonBrightnessUp,                spawn,          {.v = brightnessup} },
+  { 0, XF86XK_MonBrightnessDown,              spawn,          {.v = brightnessdown} },
 
   // screenshots
   { 0,                            XK_Print,   spawn,          {.v = screenshotcmd} },
@@ -176,7 +177,9 @@ static Button buttons[] = {
   { ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
   { ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
   { ClkWinTitle,          0,              Button2,        zoom,           {0} },
-  { ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd} },
+  { ClkStatusText,        0,              Button1,        sigdwmblocks,   {.i = 1} },
+  { ClkStatusText,        0,              Button2,        sigdwmblocks,   {.i = 2} },
+  { ClkStatusText,        0,              Button3,        sigdwmblocks,   {.i = 3} },
   { ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
   { ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
   { ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
