@@ -34,7 +34,7 @@ static const char *colors[][3]      = {
 };
 
 /* tagging */
-static const char *tags[] = { " ₁", " ₂", " ₃", " ₄", " ₅", " ₆", " ₇", " ₈", " ₉" };
+static const char *tags[] = { " ₁", " ₂", " ₃", " ₄", " ₅", " ₆", " ₇", " ₈", " ₉" };
 
 static const Rule rules[] = {
   /* xprop(1):
@@ -44,11 +44,15 @@ static const Rule rules[] = {
   /* class      instance    title       tags mask     isfloating   monitor      scratch key */
   { "Gimp",     NULL,       NULL,       0,            1,           -1,          0 },
   { "Avogadro", NULL,       NULL,       0,            1,           -1,          0 },
-  { "Firefox",  NULL,       NULL,       1 << 2,       0,           -1,          0 },
+  { "firefox",  NULL,       NULL,       1 << 2,       0,           -1,          0 },
   { "Thunderbird", NULL,    NULL,       1 << 3,       0,           -1,          0 },
   { "Slack",    NULL,       NULL,       1 << 6,       0,           -1,          0 },
+  { "Signal",   NULL,       NULL,       1 << 6,       0,           -1,          0 },
   { "discord",  NULL,       NULL,       1 << 6,       0,           -1,          0 },
-  { "zoom",     NULL,       NULL,       1 << 7,       1,           -1,          0 },
+  { "Deadbeef", NULL,       NULL,       1 << 7,       0,           -1,          0 },
+  { "Spotify",  NULL,       NULL,       1 << 7,       0,           -1,          0 },
+  { "Steam",    NULL,       NULL,       1 << 8,       0,           -1,          0 },
+  { "Lutris",   NULL,       NULL,       1 << 8,       0,           -1,          0 },
   { NULL,       NULL,       "scratchpad", 0,          1,           -1,          's' },
 };
 
@@ -108,6 +112,7 @@ static Key keys[] = {
   { MODKEY,                       XK_p,       spawn,          {.v = dmenucmd} },
   { MODKEY,                       XK_Return,  spawn,          {.v = termcmd} },
   { MODKEY,                       XK_grave,   togglescratch,  {.v = scratchpadcmd} },
+  { MODKEY,             XK_dead_circumflex,   togglescratch,  {.v = scratchpadcmd} },
   { MODKEY,                       XK_b,       togglebar,      {0} },
   { MODKEY,                       XK_j,       focusstack,     {.i = +1} },
   { MODKEY,                       XK_k,       focusstack,     {.i = -1} },
